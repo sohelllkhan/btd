@@ -8,6 +8,9 @@ import time
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from io import BytesIO
+
+if "history" not in st.session_state:
+    st.session_state.history = []
 #--- tumor spot ---
 def create_heatmap(img):
     img = np.array(img.resize((128,128)))
@@ -196,6 +199,14 @@ if upload is not None:
 
     class_index = np.argmax(output)
     confidence = float(np.max(output)) * 100
+    st.session_state.history.append({
+    "Name": patient_name if patient_name else "Unknown",
+    "Age": age,
+    "Gender": gender,
+    "Patient ID": patient_id if patient_id else "N/A",
+    "Prediction": classes[class_index],
+    "Confidence": f"{confidence:.2f}%"
+})
     pdf = generate_pdf(
     patient_name if patient_name else "Unknown",
     age,
@@ -228,7 +239,15 @@ if upload is not None:
         st.write("### Confidence Level")
         st.progress(int(confidence))
         st.write(f"**{confidence:.2f}% certainty**")
+        
+st.divider()
 
+st.markdown("## 🏥 Hospital Patient Dashboard")
+
+if len(st.session_state.history) == 0:
+    st.info("No records yet. Upload MRI scans to build patient history.")
+else:
+    st.table(st.session_state.history)
 # ---------------- FOOTER ----------------
 st.divider()
 st.caption("NeuroScan AI • Research Prototype • Not for clinical use")
