@@ -1,4 +1,5 @@
 import streamlit as st
+import cv2
 import numpy as np
 from PIL import Image
 import tensorflow as tf
@@ -7,7 +8,17 @@ import time
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from io import BytesIO
+#--- tumor spot ---
+def create_heatmap(img):
+    img = np.array(img.resize((128,128)))
 
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    heatmap = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
+
+    overlay = cv2.addWeighted(img, 0.6, heatmap, 0.4, 0)
+
+    return overlay
 # ---- pdf -----
 def generate_pdf(name, age, gender, pid, result, confidence):
     buffer = BytesIO()
@@ -168,6 +179,13 @@ if upload is not None:
     img_resized = img.resize((128, 128))
     img_array = np.array(img_resized, dtype=np.float32) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
+    # --- img ---
+    st.markdown("### 🔥 AI Attention Heatmap")
+    heatmap_img = create_heatmap(img)
+    st.image(
+    heatmap_img,
+    caption="AI Focus Regions (Simulated Heatmap)",
+    use_container_width=True)
 
     # prediction
     interpreter.set_tensor(input_details[0]['index'], img_array)
@@ -178,14 +196,12 @@ if upload is not None:
     gender,
     patient_id if patient_id else "N/A",
     classes[class_index],
-    confidence
-)
+    confidence)
     st.download_button(
     label="📄 Download Medical Report (PDF)",
     data=pdf,
     file_name="medical_report.pdf",
-    mime="application/pdf"
-)
+    mime="application/pdf")
 
     output = interpreter.get_tensor(output_details[0]['index'])[0]
 
