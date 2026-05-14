@@ -4,6 +4,32 @@ from PIL import Image
 import tensorflow as tf
 tflite = tf.lite
 import time
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+# ---- pdf -----
+def generate_pdf(name, age, gender, pid, result, confidence):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, 800, "NeuroScan AI - Medical Report")
+
+    c.setFont("Helvetica", 12)
+    c.drawString(50, 760, f"Patient Name: {name}")
+    c.drawString(50, 740, f"Age: {age}")
+    c.drawString(50, 720, f"Gender: {gender}")
+    c.drawString(50, 700, f"Patient ID: {pid}")
+
+    c.drawString(50, 660, f"Diagnosis: {result}")
+    c.drawString(50, 640, f"Confidence: {confidence:.2f}%")
+
+    c.drawString(50, 600, "Note: This is an AI-generated report, not a final medical diagnosis.")
+
+    c.save()
+    buffer.seek(0)
+    return buffer
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -146,6 +172,20 @@ if upload is not None:
     # prediction
     interpreter.set_tensor(input_details[0]['index'], img_array)
     interpreter.invoke()
+    pdf = generate_pdf(
+    patient_name if patient_name else "Unknown",
+    age,
+    gender,
+    patient_id if patient_id else "N/A",
+    classes[class_index],
+    confidence
+)
+    st.download_button(
+    label="📄 Download Medical Report (PDF)",
+    data=pdf,
+    file_name="medical_report.pdf",
+    mime="application/pdf"
+)
 
     output = interpreter.get_tensor(output_details[0]['index'])[0]
 
