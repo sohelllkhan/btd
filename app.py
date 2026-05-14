@@ -1,7 +1,8 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-import tflite_runtime.interpreter as tflite
+import tensorflow as tf
+tflite = tf.lite
 import time
 
 # ---------------- PAGE CONFIG ----------------
@@ -80,7 +81,7 @@ with st.sidebar:
 # ---------------- LOAD MODEL ----------------
 MODEL_PATH = "brain_tumor_model.tflite"
 
-interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+interpreter = tf.lite.Interpreter(model_path="brain_tumor_model.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
