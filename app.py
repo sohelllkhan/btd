@@ -89,6 +89,26 @@ output_details = interpreter.get_output_details()
 
 classes = ["Glioma", "Meningioma", "No Tumor", "Pituitary"]
 
+# ------- patient info ------
+# ---------------- PATIENT REGISTRATION ----------------
+st.markdown("## 🧑‍⚕️ Patient Information System")
+
+colA, colB, colC, colD = st.columns(4)
+
+with colA:
+    patient_name = st.text_input("Patient Name")
+
+with colB:
+    age = st.number_input("Age", min_value=0, max_value=120)
+
+with colC:
+    gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+
+with colD:
+    patient_id = st.text_input("Patient ID")
+
+st.divider()
+
 # ---------------- UPLOAD SECTION ----------------
 col1, col2 = st.columns([1, 1])
 
@@ -98,6 +118,13 @@ with col1:
 
 # ---------------- PROCESSING ----------------
 if upload is not None:
+
+    st.markdown("### 📋 Patient Medical Record")
+    st.write(f"**Name:** {patient_name if patient_name else 'Unknown'}")
+    st.write(f"**Age:** {age}")
+    st.write(f"**Gender:** {gender}")
+    st.write(f"**Patient ID:** {patient_id if patient_id else 'N/A'}")
+    st.divider()
 
     img = Image.open(upload).convert("RGB")
 
