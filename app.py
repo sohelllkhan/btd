@@ -190,6 +190,12 @@ if upload is not None:
     # prediction
     interpreter.set_tensor(input_details[0]['index'], img_array)
     interpreter.invoke()
+    
+
+    output = interpreter.get_tensor(output_details[0]['index'])[0]
+
+    class_index = np.argmax(output)
+    confidence = float(np.max(output)) * 100
     pdf = generate_pdf(
     patient_name if patient_name else "Unknown",
     age,
@@ -202,11 +208,6 @@ if upload is not None:
     data=pdf,
     file_name="medical_report.pdf",
     mime="application/pdf")
-
-    output = interpreter.get_tensor(output_details[0]['index'])[0]
-
-    class_index = np.argmax(output)
-    confidence = float(np.max(output)) * 100
 
     # ---------------- RESULT PANEL ----------------
     with col2:
