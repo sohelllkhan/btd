@@ -4,7 +4,7 @@ from PIL import Image
 import tflite_runtime.interpreter as tflite
 
 # Load TFLite model
-interpreter = tflite.Interpreter(model_path="model.tflite")
+interpreter = tflite.Interpreter(model_path="brain_tumor_model.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
